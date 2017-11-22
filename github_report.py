@@ -1,66 +1,63 @@
 from github import Github
 import csv
 
-g = Github("user_name", "password")
+def extraindo_dados_git (username, password, nome_repositorio):
 
-usuario = g.get_user()
-repositorios = usuario.get_repos()
+    github_app = Github(username, password)
 
-# Definindo um dicionario que contera os commits desses
-autores = {}
-#repositorio_pesquisa = "X-data"
-repositorio_pesquisa = "ledszeppellin_report"
+    repositorios = github_app.get_user().get_repos()
 
-for repositorio in repositorios:
-    #Pegando os repositórios no qual não sou dono
-    if repositorio.name == repositorio_pesquisa:
+    # Definindo um dicionario que contera os commits desses
+    autores_committes = {}
 
-        commits = repositorio.get_commits()
+    for repositorio in repositorios:
+        #Pegando os repositórios no qual não sou dono
+        if repositorio.name == nome_repositorio:
+            commits = repositorio.get_commits()
+            for commit in commits:
+                if (commit.author is not None) and not(commit.author.login in autores_committes):
+                    autores_committes[commit.author.login] = []
+                    autores_committes[commit.author.login].append(commit)
+                elif (commit.author is not None) and (commit.author.login in autores_committes):
+                    autores_committes[commit.author.login].append(commit)
 
-        for commit in commits:
+    return autores_committes
 
-            if (commit.author is not None) and not(commit.author.login in autores):
-                autores[commit.author.login] = []
-                autores[commit.author.login].append(commit)
-                print ("Login: "+commit.author.login)
-                print ("Message: "+commit.commit.message)
-                print ("Url: "+commit.commit.url)
-                print (commit.commit.author.date)
-                print ("Email Committer: "+commit.commit.committer.email)
-                print (commit.commit.committer.date)
+def criando_arquivo_csv (dados,nome_repositorio):
+    #Salvando em arquivo e definindo o dialeto
+    csv.register_dialect('dialeto', delimiter=',', quoting=csv.QUOTE_NONE)
+    git_report = open('git_report.csv', 'w')
+    with git_report:
+        git_report_colluns = ['repositorio',
+                            'autor',
+                            'sha',
+                            'message',
+                            'url',
+                            'autor_date_commit',
+                            'email_committer',
+                            'commit_date_commit']
+        writer = csv.DictWriter(git_report, fieldnames=git_report_colluns)
+        writer.writeheader()
 
-            elif (commit.author is not None) and (commit.author.login in autores):
-                autores[commit.author.login].append(commit)
-                print ("Login: "+commit.author.login)
-                print ("Message: "+commit.commit.message)
-                print ("Url: "+commit.commit.url)
-                print (commit.commit.author.date)
-                print ("Email Committer: "+commit.commit.committer.email)
-                print (commit.commit.committer.date)
+        for key, commites in dados.items() :
+            for commit in commites:
+                writer.writerow({'repositorio': nome_repositorio,
+                                 'autor' : key,
+                                 'sha': commit.sha,
+                                 'message': commit.commit.message,
+                                 'url': commit.commit.url,
+                                 'autor_date_commit': commit.commit.url,
+                                 'email_committer': commit.commit.url,
+                                 'commit_date_commit': commit.commit.url,
+                                 }
+                                 )
+def main():
 
-#Salvando em arquivo e definindo o dialeto
-csv.register_dialect('dialeto', delimiter=',', quoting=csv.QUOTE_NONE)
-git_report = open('git_report.csv', 'w')
-with git_report:
-    git_report_colluns = ['repositorio',
-                        'autor',
-                        'sha',
-                        'message',
-                        'url',
-                        'autor_date_commit',
-                        'email_committer',
-                        'commit_date_commit']
-    writer = csv.DictWriter(git_report, fieldnames=git_report_colluns)
-    writer.writeheader()
-    for key, commites in autores.items() :
-        for commit in commites:
-            writer.writerow({'repositorio': repositorio_pesquisa,
-                             'autor' : key,
-                             'sha': commit.sha,
-                             'message': commit.commit.message,
-                             'url': commit.commit.url,
-                             'autor_date_commit': commit.commit.url,
-                             'email_committer': commit.commit.url,
-                             'commit_date_commit': commit.commit.url,
-                             }
-                             )
+    print ("Buscando dados no Git")
+    dados = extraindo_dados_git("<git_username>", "<git_password>", "<nome_repositorio>")
+    print ("Salvando os dados em um arquivo")
+    criando_arquivo_csv(dados,"<nome_repositorio>")
+    print ("Fim")
+
+if __name__ == "__main__":
+    main()
