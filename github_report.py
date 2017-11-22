@@ -1,18 +1,18 @@
 from github import Github
 import csv
 
-g = Github("paulossjunior", "xxxxxx")
+g = Github("paulossjunior", "xxxxx")
 
 usuario = g.get_user()
 repositorios = usuario.get_repos()
 
 # Definindo um dicionario que contera os commits desses
 autores = {}
-repositorio_pesquisa = "ledszeppellin_report"
+repositorio_pesquisa = "X-data"
 
 for repositorio in repositorios:
-    #Pegando os repositórios no qual não sou dono repositorio.owner.login != usuario.login and
-    if repositorio.name == repositorio_pesquisa:
+    #Pegando os repositórios no qual não sou donoand
+    if  repositorio.owner.login != usuario.login and repositorio.name == repositorio_pesquisa:
 
         print (repositorio.name)
 
@@ -23,17 +23,31 @@ for repositorio in repositorios:
             if (commit.author is not None) and not(commit.author.login in autores):
                 autores[commit.author.login] = []
                 autores[commit.author.login].append(commit)
+                print (commit.commit.message)
+                print (commit.commit.url)
+
+                print ("Status")
+                for status in commit.get_statuses():
+                    print (status.created_at)
+                    print (status.updated_at)
+                print ("========")
+
             elif (commit.author is not None) and (commit.author.login in autores):
                 autores[commit.author.login].append(commit)
-
 
 #Salvando em arquivo e definindo o dialeto
 csv.register_dialect('dialeto', delimiter=',', quoting=csv.QUOTE_NONE)
 git_report = open('git_report.csv', 'w')
 with git_report:
-    git_report_colluns = ['repositorio','autor', 'sha']
+    git_report_colluns = ['repositorio','autor', 'sha', 'message','url']
     writer = csv.DictWriter(git_report, fieldnames=git_report_colluns)
     writer.writeheader()
     for key, commites in autores.items() :
         for commit in commites:
-            writer.writerow({'repositorio': repositorio_pesquisa,'autor' : key, 'sha': commit.sha})
+            writer.writerow({'repositorio': repositorio_pesquisa,
+                             'autor' : key,
+                             'sha': commit.sha,
+                             'message': commit.commit.message,
+                             'url': commit.commit.url,
+                             }
+                             )
