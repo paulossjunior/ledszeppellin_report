@@ -1,18 +1,18 @@
 from github import Github
 import csv
 
-g = Github("paulossjunior", "forceknight2009")
+g = Github("paulossjunior", "xxxxxx")
 
 usuario = g.get_user()
 repositorios = usuario.get_repos()
 
 # Definindo um dicionario que contera os commits desses
 autores = {}
-repositorio_pesquisa = "X-data"
+repositorio_pesquisa = "ledszeppellin_report"
 
 for repositorio in repositorios:
-    #Pegando os repositórios no qual não sou dono
-    if repositorio.owner.login != usuario.login and repositorio.name == repositorio_pesquisa:
+    #Pegando os repositórios no qual não sou dono repositorio.owner.login != usuario.login and
+    if repositorio.name == repositorio_pesquisa:
 
         print (repositorio.name)
 
