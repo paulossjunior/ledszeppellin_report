@@ -3,8 +3,10 @@ from taiga import TaigaAPI
 api = TaigaAPI()
 
 api.auth(
-    username='user',
-    password='psw'
+    username='XXXXXX',
+    password='YYYYYYY'
 )
 #buscando os projetos do usuario
-projects = api.projects.list()
+api2 = TaigaAPI(token=api.token)
+projects = api2.projects.list()
+
