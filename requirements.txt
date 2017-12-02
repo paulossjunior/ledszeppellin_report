@@ -3,10 +3,17 @@ PyJWT==1.5.3
 certifi==2017.11.5
 chardet==3.0.4
 future==0.16.0
+get==0.0.0
 idna==2.6
+post==0.0.0
+public==0.0.46
 pycryptodomex==3.4.7
 pyjwkest==1.4.0
 python-dateutil==2.6.1
+python-taiga==0.8.6
+query-string==0.0.12
+request==0.0.0
 requests==2.18.4
+setupfiles==0.0.50
 six==1.11.0
 urllib3==1.22
