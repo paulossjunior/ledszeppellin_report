@@ -1,4 +1,4 @@
-from github import Github
+from github import Github,GitAuthor
 import csv
 
 def extraindo_dados_git (username, password, nome_repositorio):
@@ -23,40 +23,50 @@ def extraindo_dados_git (username, password, nome_repositorio):
 
     return autores_committes
 
-def criando_arquivo_csv (dados,nome_repositorio):
+def criando_arquivo_commit_csv (dados,nome_repositorio):
     #Salvando em arquivo e definindo o dialeto
     csv.register_dialect('dialeto', delimiter=',', quoting=csv.QUOTE_NONE)
-    git_report = open('git_report.csv', 'w')
+    git_report = open('git_commit_report.csv', 'w')
     with git_report:
         git_report_colluns = ['repositorio',
-                            'autor',
+                            'author',
                             'sha',
                             'message',
                             'url',
-                            'autor_date_commit',
+                            'author_date_commit',
                             'email_committer',
-                            'commit_date_commit']
+                            'commit_date_commit',
+                            'filename',
+                            'additions',
+                            'deletions',
+                            'blob_url'
+                            ]
         writer = csv.DictWriter(git_report, fieldnames=git_report_colluns)
         writer.writeheader()
 
         for key, commites in dados.items() :
             for commit in commites:
-                writer.writerow({'repositorio': nome_repositorio,
-                                 'autor' : key,
-                                 'sha': commit.sha,
-                                 'message': commit.commit.message,
-                                 'url': commit.commit.url,
-                                 'autor_date_commit': commit.commit.url,
-                                 'email_committer': commit.commit.url,
-                                 'commit_date_commit': commit.commit.url,
+                for file in commit.files:
+                    writer.writerow({'repositorio': nome_repositorio,
+                                     'author' : key,
+                                     'sha': commit.sha,
+                                     'message': commit.commit.message,
+                                     'url': commit.commit.url,
+                                     'author_date_commit': commit.commit.author.date,
+                                     'email_committer': commit.committer.email,
+                                     'commit_date_commit': commit.commit.committer.date,
+                                     'filename': file.filename,
+                                     'additions': file.additions,
+                                     'deletions': file.deletions,
+                                     'blob_url':file.blob_url
                                  }
                                  )
 def main():
 
     print ("Buscando dados no Git")
-    dados = extraindo_dados_git("<git_username>", "<git_password>", "<nome_repositorio>")
+    dados = extraindo_dados_git("username", "password", "repositorio")
     print ("Salvando os dados em um arquivo")
-    criando_arquivo_csv(dados,"<nome_repositorio>")
+    criando_arquivo_commit_csv(dados,"repositorio")
     print ("Fim")
 
 if __name__ == "__main__":
