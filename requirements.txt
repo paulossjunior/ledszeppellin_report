@@ -1,3 +1,5 @@
+PyGithub==1.35
+PyJWT==1.5.3
 certifi==2017.11.5
 chardet==3.0.4
 future==0.16.0
@@ -5,7 +7,6 @@ idna==2.6
 pycryptodomex==3.4.7
 pyjwkest==1.4.0
 python-dateutil==2.6.1
-python-taiga==0.8.6
 requests==2.18.4
 six==1.11.0
 urllib3==1.22
