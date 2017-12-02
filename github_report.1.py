@@ -1,21 +1,21 @@
 from github import Github,GitAuthor
 import csv
 
-def extraindo_dados_git (username, password, nome_repositorio):
+def extraindo_dados_git (username, password, repositorios):
 
     github_app = Github(username, password)
 
-    repositorios = github_app.get_user().get_repos()
+    repositorios_git = github_app.get_user().get_repos()
 
     # Definindo um dicionario que contera os commits desses
     repositorios_commites = {}
 
-    for repositorio in repositorios:
+    for repositorio in repositorios_git:
         #Pegando os repositórios no qual não sou dono
-        if repositorio.name == nome_repositorio:
+        if repositorio.name in repositorios:
             commits = repositorio.get_commits()
-            if not(nome_repositorio in repositorios_commites):
-                    repositorios_commites[nome_repositorio] = []
+            if not(repositorio.name in repositorios_commites):
+                    repositorios_commites[repositorio.name] = []
             
             repositorios_commites[repositorio.name].append(commits)
                 
@@ -47,14 +47,15 @@ def criando_arquivo_commit_csv (dados):
             for committes in list_commites:
                 for commit in committes:
                     for file in commit.files:
-                        writer.writerow({'repositorio': repositorio,
+                        writer.writerow(
+                            {'repositorio': repositorio,
                                      'author' : commit.commit.author.name,
                                      'author_email': commit.commit.author.email,
                                      'sha': commit.sha,
                                      'message': commit.commit.message,
                                      'url': commit.commit.url,
                                      'author_date_commit': commit.commit.author.date,
-                                     'email_committer': commit.committer.email,
+                                     'email_committer': check_value(commit.committer,'email'),
                                      'commit_date_commit': commit.commit.committer.date,
                                      'filename': file.filename,
                                      'additions': file.additions,
@@ -63,10 +64,16 @@ def criando_arquivo_commit_csv (dados):
                                  }
                                  )
 
+def check_value(_object,attr_name):
+    if _object is not None:
+        return getattr(_object, attr_name)
+    return ''    
+
 def main():
 
     print ("Buscando dados no Git")
-    dados = extraindo_dados_git("username", "password", "repositorio")
+    repositorios = ['ledszeppellin_report','spring_integration_examples']
+    dados = extraindo_dados_git("username", "password", repositorios)
     print ("Salvando os dados em um arquivo")
     criando_arquivo_commit_csv(dados)
     print ("Fim")
